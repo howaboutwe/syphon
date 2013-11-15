@@ -5,15 +5,22 @@ module Syphon
     end
 
     initializer "syphon.initialize" do
-      db_configs = YAML.load_file("#{Rails.root}/config/database.yml")
-      db_config = db_configs["#{Rails.env}_search"] || db_configs[Rails.env]
-      Syphon.database_configuration = db_config.symbolize_keys
+      if Syphon.database_configuration.nil? && defined?(ActiveRecord::Base)
+        db_configs = ActiveRecord::Base.configurations
+        db_config = db_configs["#{Rails.env}_syphon"] || db_configs[Rails.env] and
+          Syphon.database_configuration = db_config.symbolize_keys
+      end
 
-      es_configs = YAML.load_file("#{Rails.root}/config/elasticsearch.yml")
-      Syphon.configuration = es_configs[Rails.env]
+      path = "#{Rails.root}/config/syphon.yml"
+      if Syphon.configuration.nil? && File.exist?(path)
+        config = YAML.load_file(path)[Rails.env] and
+          Syphon.configuration = config
+      end
 
-      app_name = Rails.application.class.parent_name.underscore
-      Syphon.index_namespace = "#{app_name}_#{Rails.env}"
+      if Syphon.index_namespace.nil?
+        app_name = Rails.application.class.parent_name.underscore
+        Syphon.index_namespace = "#{app_name}_#{Rails.env}"
+      end
     end
   end
 end

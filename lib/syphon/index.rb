@@ -25,7 +25,7 @@ module Syphon
       def index_name
         @index_name ||=
           begin
-            prefix = Syphon.index_namespace ? "#{Syphon.index_namespace}_" : ''
+            prefix = Syphon.index_namespace.to_s.empty? ? '' : "#{Syphon.index_namespace}_"
             prefix + name.sub(/Index\z/, '').underscore.pluralize
           end
       end
