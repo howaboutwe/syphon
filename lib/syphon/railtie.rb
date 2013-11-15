@@ -1,5 +1,9 @@
 module Syphon
   class Railtie < Rails::Railtie
+    rake_tasks do
+      require 'syphon/tasks'
+    end
+
     initializer "syphon.initialize" do
       db_configs = YAML.load_file("#{Rails.root}/config/database.yml")
       db_config = db_configs["#{Rails.env}_search"] || db_configs[Rails.env]

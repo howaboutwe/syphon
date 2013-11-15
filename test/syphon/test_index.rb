@@ -19,6 +19,14 @@ describe Syphon::Index do
       end
     end
 
+    describe "when the index namespace is empty" do
+      use_attribute_value Syphon, :index_namespace, ''
+
+      it "it is treated the same as nil" do
+        TestIndex.index_name.must_equal 'tests'
+      end
+    end
+
     describe "when an index namespace is set" do
       it "prefixes with the namespace and an underscore" do
         TestIndex.index_name.must_equal 'syphon_tests'

@@ -20,8 +20,8 @@ module Syphon
       Thread.current[:syphon_client] ||= Elasticsearch::Client.new(Syphon.configuration)
     end
 
-    def classes
-      Syphon.configuration['indices'].map(&:constantize)
+    def index_classes
+      Syphon.configuration['index_classes'].map(&:constantize)
     end
   end
 end
