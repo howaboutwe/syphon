@@ -14,7 +14,7 @@ module Syphon
       path = "#{Rails.root}/config/syphon.yml"
       if Syphon.configuration.nil? && File.exist?(path)
         config = YAML.load_file(path)[Rails.env] and
-          Syphon.configuration = config
+          Syphon.configuration = config.symbolize_keys
       end
 
       if Syphon.index_namespace.nil?
