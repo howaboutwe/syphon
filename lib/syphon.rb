@@ -10,7 +10,19 @@ module Syphon
   autoload :VERSION, 'syphon/version'
 
   class << self
-    attr_accessor :configuration, :database_configuration, :index_namespace
+    attr_writer :configuration, :database_configuration, :index_namespace
+
+    def configuration
+      @configuration ||= {}
+    end
+
+    def database_configuration
+      @database_configuration ||= {}
+    end
+
+    def index_namespace
+      @index_namespace ||= configuration[:index_namespace]
+    end
 
     def database_connection
       @database_connection ||= Mysql2::Client.new(database_configuration)

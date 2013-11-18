@@ -5,15 +5,17 @@ module Syphon
     end
 
     initializer "syphon.initialize" do
-      if Syphon.database_configuration.nil? && defined?(ActiveRecord::Base)
+      if Syphon.database_configuration.empty? && defined?(ActiveRecord::Base)
         db_configs = ActiveRecord::Base.configurations
         db_config = db_configs["#{Rails.env}_syphon"] || db_configs[Rails.env] and
           Syphon.database_configuration = db_config.symbolize_keys
       end
 
       path = "#{Rails.root}/config/syphon.yml"
-      if Syphon.configuration.nil? && File.exist?(path)
-        config = YAML.load_file(path)[Rails.env] and
+      if File.exist?(path)
+        erb = File.read(path)
+        yaml = ERB.new(erb).result
+        config = YAML.load(yaml)[Rails.env] and
           Syphon.configuration = config.symbolize_keys
       end
 
