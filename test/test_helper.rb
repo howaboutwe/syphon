@@ -3,9 +3,11 @@ ROOT = File.expand_path('..', File.dirname(__FILE__))
 $:.unshift "#{ROOT}/lib"
 require 'minitest/spec'
 require 'yaml'
+require 'fileutils'
 require 'temporaries'
 require 'debugger' if RUBY_VERSION < '2.0'
 require 'looksee'
+require 'rails'
 
 require 'syphon'
 
