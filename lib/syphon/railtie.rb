@@ -3,38 +3,41 @@ require 'yaml'
 
 module Syphon
   class Railtie < Rails::Railtie
+    this = self
+
     rake_tasks do
       require 'syphon/tasks'
     end
 
     initializer "syphon.initialize" do
-      set_database_configuration(ActiveRecord::Base.configurations, Rails.env)
-      set_configuration(Rails.env, Rails.root, Rails.application.class.parent_name)
+      this.set_configuration(
+        env: Rails.env,
+        root: Rails.root,
+        app_name: Rails.application.class.parent_name,
+        dbconfig: ActiveRecord::Base.configurations,
+      )
     end
 
     class << self
-      def set_database_configuration(env, configurations)
-        if Syphon.database_configuration.empty?
-          config = configurations["#{env}_syphon"] || configurations[env] and
-            Syphon.database_configuration = config.symbolize_keys
-        end
-      end
+      def set_configuration(params = {})
+        env, root, app_name, dbconfig =
+          params.values_at(:env, :root, :app_name, :dbconfig)
 
-      def set_configuration(env, root, app_name)
         path = "#{root}/config/syphon.yml"
         if File.exist?(path)
           erb = File.read(path)
           yaml = ERB.new(erb).result
-          if (config = YAML.load(yaml)[env])
-            config.symbolize_keys!
-            config[:log] = normalize_log(env, root, config[:log])
-            Syphon.configuration = config
-          end
+          config = YAML.load(yaml)[env]
         end
 
-        if Syphon.index_namespace.nil?
-          Syphon.index_namespace = "#{app_name.underscore}_#{env}"
-        end
+        config ||= {}
+        config.symbolize_keys!
+        config[:log] = normalize_log(env, root, config[:log])
+        config[:database] ||= dbconfig[env].dup
+        config[:index_namespace] ||= "#{app_name.underscore}_#{env}"
+        config[:database].try(:symbolize_keys!)
+        config[:elasticsearch].try(:symbolize_keys!)
+        Syphon.configuration = config
       end
 
       private

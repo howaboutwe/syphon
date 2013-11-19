@@ -11,10 +11,9 @@ require 'rails'
 
 require 'syphon'
 
-config = YAML.load_file("#{ROOT}/test/config.yml")
-Syphon.database_configuration = config['database']
-Syphon.configuration = config['elasticsearch']
-Syphon.index_namespace = 'syphon'
+config = YAML.load_file("#{ROOT}/test/config.yml").symbolize_keys
+config[:database].symbolize_keys!
+Syphon.configuration = config.merge(index_namespace: 'syphon')
 
 MiniTest::Spec.class_eval do
   def self.uses_users_table

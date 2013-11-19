@@ -12,7 +12,7 @@ describe Syphon::Index do
 
   describe ".index_name" do
     describe "when no index namespace is set" do
-      use_attribute_value Syphon, :index_namespace, nil
+      use_attribute_value Syphon, :configuration, {index_namespace: nil}
 
       it "it is the index base name" do
         TestIndex.index_name.must_equal 'tests'
@@ -20,7 +20,7 @@ describe Syphon::Index do
     end
 
     describe "when the index namespace is empty" do
-      use_attribute_value Syphon, :index_namespace, ''
+      use_attribute_value Syphon, :configuration, {index_namespace: ''}
 
       it "it is treated the same as nil" do
         TestIndex.index_name.must_equal 'tests'
