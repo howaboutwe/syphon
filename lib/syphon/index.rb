@@ -25,9 +25,17 @@ module Syphon
       def index_name
         @index_name ||=
           begin
-            prefix = Syphon.index_namespace.to_s.empty? ? '' : "#{Syphon.index_namespace}_"
-            prefix + name.sub(/Index\z/, '').underscore.pluralize
+            namespace = Syphon.index_namespace
+            if namespace.to_s.empty?
+              index_base_name
+            else
+              "#{namespace}_#{index_base_name}"
+            end
           end
+      end
+
+      def index_base_name
+        @index_base_name ||= name.sub(/Index\z/, '').underscore.pluralize
       end
 
       def sources
@@ -82,9 +90,7 @@ module Syphon
         @warmups ||= []
       end
 
-      protected
-
-      attr_writer :index_name
+      attr_writer :index_base_name
 
       private
 

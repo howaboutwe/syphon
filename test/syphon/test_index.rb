@@ -14,7 +14,7 @@ describe Syphon::Index do
     describe "when no index namespace is set" do
       use_attribute_value Syphon, :index_namespace, nil
 
-      it "it derived from the class name" do
+      it "it is the index base name" do
         TestIndex.index_name.must_equal 'tests'
       end
     end
@@ -32,10 +32,21 @@ describe Syphon::Index do
         TestIndex.index_name.must_equal 'syphon_tests'
       end
     end
+  end
 
-    it "can be overridden by the class" do
-      TestIndex.class_eval { self.index_name = 'wibble' }
-      TestIndex.index_name.must_equal 'wibble'
+  describe ".index_base_name" do
+    it "is based on the class name" do
+      TestIndex.index_base_name.must_equal 'tests'
+    end
+
+    it "can be overridden" do
+      TestIndex.index_base_name = 'wibble'
+      TestIndex.index_base_name.must_equal 'wibble'
+    end
+
+    it "contributes to the index name" do
+      TestIndex.index_base_name = 'wibble'
+      TestIndex.index_name.must_equal 'syphon_wibble'
     end
   end
 
