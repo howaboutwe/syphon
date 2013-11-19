@@ -25,4 +25,15 @@ describe Syphon do
       Syphon.index_namespace.must_equal('NAMESPACE')
     end
   end
+
+  describe ".elasticsearch_configuration" do
+    use_attribute_value Syphon, :configuration, nil
+    use_temporary_directory "#{ROOT}/test/tmp"
+
+    it "is creates a logger if a log path is given" do
+      Syphon.configuration[:log] = "#{tmp}/syphon.log"
+      Syphon.elasticsearch_configuration[:logger].info 'FINDME'
+      File.read("#{ROOT}/test/tmp/syphon.log").must_include 'FINDME'
+    end
+  end
 end

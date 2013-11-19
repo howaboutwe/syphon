@@ -29,11 +29,23 @@ module Syphon
     end
 
     def client
-      Thread.current[:syphon_client] ||= Elasticsearch::Client.new(Syphon.configuration)
+      Thread.current[:syphon_client] ||= Elasticsearch::Client.new(elasticsearch_configuration)
     end
 
     def index_classes
       Syphon.configuration['index_classes'].map(&:constantize)
+    end
+
+    def elasticsearch_configuration
+      configuration = Syphon.configuration.dup
+      if (log = configuration[:log])
+        if log.is_a?(String)
+          configuration.delete(:log)
+          logger = Logger.new(log)
+          configuration[:logger] = logger
+        end
+      end
+      configuration
     end
   end
 end
