@@ -22,12 +22,7 @@ module Syphon
 
     def elasticsearch_configuration
       configuration = Syphon.configuration[:elasticsearch].try(:dup) || {}
-      if (log = Syphon.configuration[:log])
-        if log.is_a?(String)
-          logger = Logger.new(log)
-          configuration[:logger] = logger
-        end
-      end
+      configuration[:logger] = logger
       configuration
     end
 
@@ -45,6 +40,27 @@ module Syphon
 
     def index_classes
       Syphon.configuration['index_classes'].map(&:constantize)
+    end
+
+    def logger
+      Thread.current[:syphon_logger] ||= make_logger
+    end
+
+    def logger=(logger)
+      Thread.current[:syphon_logger] = logger
+    end
+
+    private
+
+    def make_logger
+      log = Syphon.configuration[:log] || STDOUT
+      Logger.new(log).tap do |logger|
+        logger.formatter = lambda do |level, time, progname, message|
+          "#{time.strftime('%Y-%m-%d: %H:%M:%S')}: #{level}: #{message}\n"
+        end
+        level = configuration[:log_level] and
+          logger.level = Logger.const_get(level.upcase)
+      end
     end
   end
 end

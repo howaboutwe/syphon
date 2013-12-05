@@ -46,6 +46,7 @@ describe Syphon do
 
   describe ".elasticsearch_configuration" do
     use_attribute_value Syphon, :configuration, nil
+    use_attribute_value Syphon, :logger, nil
     use_temporary_directory "#{ROOT}/test/tmp"
 
     it "includes all configured elasticserach settings" do
@@ -53,10 +54,25 @@ describe Syphon do
       Syphon.elasticsearch_configuration[:reload_on_failure].must_equal true
     end
 
-    it "adds a logger if a log path is given" do
+    it "adds the Syphon logger" do
+      logger = Logger.new(logger)
+      Syphon.logger = logger
+      Syphon.elasticsearch_configuration[:logger].must_equal logger
+    end
+  end
+
+  describe ".logger" do
+    use_attribute_value Syphon, :configuration, nil
+    use_attribute_value Syphon, :logger, nil
+    use_temporary_directory "#{ROOT}/test/tmp"
+
+    it "uses the configured log path and log level" do
       Syphon.configuration[:log] = "#{tmp}/syphon.log"
-      Syphon.elasticsearch_configuration[:logger].info 'FINDME'
-      File.read("#{ROOT}/test/tmp/syphon.log").must_include 'FINDME'
+      Syphon.configuration[:log_level] = 'info'
+      Syphon.logger.debug 'DEBUG LEVEL'
+      Syphon.logger.info 'INFO LEVEL'
+      File.read("#{ROOT}/test/tmp/syphon.log").wont_include 'DEBUG LEVEL'
+      File.read("#{ROOT}/test/tmp/syphon.log").must_include 'INFO LEVEL'
     end
   end
 end

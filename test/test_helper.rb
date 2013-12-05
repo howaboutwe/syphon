@@ -14,6 +14,7 @@ require 'syphon'
 config = YAML.load_file("#{ROOT}/test/config.yml").symbolize_keys
 config[:database].symbolize_keys!
 Syphon.configuration = config.merge(index_namespace: 'syphon')
+Syphon.logger = Logger.new('/dev/null')
 
 MiniTest::Spec.class_eval do
   def self.uses_users_table
