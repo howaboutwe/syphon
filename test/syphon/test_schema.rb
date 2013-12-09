@@ -190,6 +190,30 @@ describe Syphon::Schema do
       EOS
     end
 
+    it "calls blocks for dynamic queries" do
+      schema = Syphon::Schema.new do
+        string :s, -> { 'S' }
+        nested :inner do
+          string :t, -> { 'T' }
+        end
+        from -> { 'things' }
+        join -> { 'INNER JOIN a ON 1' }
+        join -> { 'INNER JOIN b ON 2' }
+        where -> { 'a = 1' }
+        group_by -> { 'x' }
+        having -> { 'count(*) = 1' }
+      end
+      schema.query.must_equal <<-EOS.strip.gsub(/\s+/, ' ')
+        SELECT S AS `s`, T AS `inner[t]`
+        FROM things
+        INNER JOIN a ON 1
+        INNER JOIN b ON 2
+        WHERE a = 1
+        GROUP BY x
+        HAVING count(*) = 1
+      EOS
+    end
+
     it "omits optional clauses when in the minimal case" do
       schema = Syphon::Schema.new do
         string :s, 'S'

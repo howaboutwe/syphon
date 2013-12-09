@@ -84,24 +84,25 @@ module Syphon
     end
 
     class Field
-      def initialize(name, type, expression, options = {})
+      def initialize(schema, name, type, expression, options = {})
+        @schema = schema
         @name = name.to_sym
         @type = type
         @expression = expression
         @properties = options.merge(type: type)
       end
 
-      attr_reader :name, :type, :expression, :properties
+      attr_reader :schema, :name, :type, :expression, :properties
 
       def select(outer = nil)
         name = outer ? "#{outer}[#{self.name}]" : self.name
-        "#{expression} AS `#{name}`"
+        "#{schema.send(:query_fragment, expression)} AS `#{name}`"
       end
     end
 
     class NestedField < Field
-      def initialize(name, options = {}, &block)
-        super(name, :nested, nil, options)
+      def initialize(schema, name, options = {}, &block)
+        super(schema, name, :nested, nil, options)
         @nested_schema = Schema.new(&block)
       end
 
@@ -127,7 +128,7 @@ module Syphon
       end
 
       def field(name, type, expression, options = {})
-        schema.fields[name.to_sym] = Field.new(name, type, expression, options)
+        schema.fields[name.to_sym] = Field.new(schema, name, type, expression, options)
       end
 
       %w[string short byte integer long float double date boolean binary geo_point].each do |type|
@@ -139,7 +140,7 @@ module Syphon
       end
 
       def nested(name, options = {}, &block)
-        schema.fields[name.to_sym] = NestedField.new(name, options, &block)
+        schema.fields[name.to_sym] = NestedField.new(schema, name, options, &block)
       end
 
       {
