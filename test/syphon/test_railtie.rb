@@ -81,7 +81,14 @@ describe Syphon::Railtie do
         Syphon.database_configuration.must_equal({database: 'mydb'})
       end
 
-      it "defaults to the primary ActiveRecord configuration" do
+      it "defaults to a configuration for syphon in the current environment" do
+        write_config('test' => {})
+        params[:dbconfig] = {'test_syphon' => {database: 'syphondb'}, 'test' => {database: 'ardb'}}
+        Syphon::Railtie.set_configuration(params)
+        Syphon.database_configuration.must_equal({database: 'syphondb'})
+      end
+
+      it "defaults to the primary ActiveRecord configuration otherwise" do
         write_config('test' => {})
         Syphon::Railtie.set_configuration(params)
         Syphon.database_configuration.must_equal({database: 'ardb'})

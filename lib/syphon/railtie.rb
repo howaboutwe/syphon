@@ -33,7 +33,7 @@ module Syphon
         config ||= {}
         config.symbolize_keys!
         config[:log] = normalize_log(env, root, config[:log])
-        config[:database] ||= dbconfig[env].dup
+        config[:database] ||= (dbconfig["#{env}_syphon"] || dbconfig[env]).dup
         config[:index_namespace] ||= "#{app_name.underscore}_#{env}"
         config[:database].try(:symbolize_keys!)
         config[:elasticsearch].try(:symbolize_keys!)
