@@ -1,4 +1,4 @@
-== LATEST
+== 0.0.2 2013-12-12
 
  * Add index_settings attribute to control sharding, replication, etc.
  * Allow dynamic SQL (blocks) for attributes.
