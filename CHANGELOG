@@ -1,3 +1,12 @@
+== LATEST
+
+ * Allow dynamic SQL (blocks) for attributes.
+ * Make index_base_name overridable instead of index_name. The former is
+   prefixed with the configured index_namespace.
+ * Restructure configuration under Rails. Single file (syphon.yml) with log
+   settings at top-level, and database and elasticsearch settings under their
+   respective keys. Log file may now be relative to rails root.
+
 == 0.0.1 2013-11-18
 
  * Hi.
