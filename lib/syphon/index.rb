@@ -3,14 +3,16 @@ module Syphon
     def self.included(base)
       base.extend ClassMethods
       base.pre_sql ||= []
+      base.index_settings ||= {}
       super
     end
 
     module ClassMethods
-      attr_accessor :pre_sql
+      attr_accessor :pre_sql, :index_settings
 
       def inherited(subclass)
         subclass.pre_sql = pre_sql.dup
+        subclass.index_settings = index_settings.dup
         super
       end
 
@@ -46,7 +48,7 @@ module Syphon
         old_internal_name = internal_index_name
         new_internal_name = new_internal_index_name(index_name)
 
-        client.indices.create(index: new_internal_name)
+        client.indices.create(index: new_internal_name, body: {settings: index_settings})
         sources.each do |name, source|
           body = source.mapping
           client.indices.put_mapping(index: new_internal_name, type: source.type, body: body)

@@ -1,5 +1,6 @@
 == LATEST
 
+ * Add index_settings attribute to control sharding, replication, etc.
  * Allow dynamic SQL (blocks) for attributes.
  * Make index_base_name overridable instead of index_name. The former is
    prefixed with the configured index_namespace.

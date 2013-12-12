@@ -106,6 +106,14 @@ describe Syphon::Index do
       hits.map { |doc| doc['_source']['login'] }.must_equal ['bob']
     end
 
+    it "passes configured index settings" do
+      TestIndex.index_settings = {number_of_shards: 23}
+      TestIndex.build
+      index = TestIndex.client.indices.get_alias(name: TestIndex.index_name).keys.first
+      num_shards = client.indices.get_settings[index]['settings']['index.number_of_shards']
+      num_shards.must_equal '23'
+    end
+
     it "runs all warmups between building the new index and rotating it in" do
       this = self
       runs = []
