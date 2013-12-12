@@ -1,3 +1,8 @@
+== LATEST
+
+ * Use an ENV_syphon database configuration in database.yml before falling back
+   to the standard one with Rails.
+
 == 0.0.2 2013-12-12
 
  * Add index_settings attribute to control sharding, replication, etc.
