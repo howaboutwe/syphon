@@ -48,19 +48,28 @@ module Syphon
         old_internal_name = internal_index_name
         new_internal_name = new_internal_index_name(index_name)
 
-        client.indices.create(index: new_internal_name, body: {settings: index_settings})
-        sources.each do |name, source|
-          body = source.mapping
-          client.indices.put_mapping(index: new_internal_name, type: source.type, body: body)
-          source.import(index: new_internal_name) unless options[:schema_only]
+        made_it = false
+        begin
+          client.indices.create(index: new_internal_name, body: {settings: index_settings})
+          sources.each do |name, source|
+            body = source.mapping
+            client.indices.put_mapping(index: new_internal_name, type: source.type, body: body)
+            source.import(index: new_internal_name) unless options[:schema_only]
+          end
+
+          warmups.each { |w| w.call(new_internal_name) }
+
+          remove = {remove: {index: old_internal_name, alias: index_name}} if old_internal_name
+          add = {add: {index: new_internal_name, alias: index_name}}
+          client.indices.update_aliases body: {actions: [remove, add].compact}
+          made_it = true
+        ensure
+          if made_it
+            client.indices.delete(index: old_internal_name) if old_internal_name
+          else
+            client.indices.delete(index: new_internal_name) if new_internal_name
+          end
         end
-
-        warmups.each { |w| w.call(new_internal_name) }
-
-        remove = {remove: {index: old_internal_name, alias: index_name}} if old_internal_name
-        add = {add: {index: new_internal_name, alias: index_name}}
-        client.indices.update_aliases body: {actions: [remove, add].compact}
-        client.indices.delete(index: old_internal_name) if old_internal_name
       end
 
       def destroy

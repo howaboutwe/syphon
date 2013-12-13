@@ -106,6 +106,13 @@ describe Syphon::Index do
       hits.map { |doc| doc['_source']['login'] }.must_equal ['bob']
     end
 
+    it "deletes the index if building fails" do
+      indices = TestIndex.client.indices.status['indices'].keys.to_set
+      TestIndex.source.instance_eval { def import(*); raise 'fubar'; end }
+      -> { TestIndex.build }.must_raise(RuntimeError)
+      TestIndex.client.indices.status['indices'].keys.to_set.must_equal indices
+    end
+
     it "passes configured index settings" do
       TestIndex.index_settings = {number_of_shards: 23}
       TestIndex.build

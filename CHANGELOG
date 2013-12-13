@@ -1,5 +1,6 @@
 == LATEST
 
+ * Clean up partially built index if building fails.
  * Use an ENV_syphon database configuration in database.yml before falling back
    to the standard one with Rails.
 
