@@ -5,7 +5,7 @@ require 'minitest/spec'
 require 'yaml'
 require 'fileutils'
 require 'temporaries'
-require 'debugger' if RUBY_VERSION < '2.0'
+require 'byebug'
 require 'looksee'
 require 'rails'
 
@@ -20,21 +20,29 @@ MiniTest::Spec.class_eval do
   def self.uses_users_table
     let(:db) { Syphon.database_connection }
 
-    before do
-      columns = "id int auto_increment PRIMARY KEY, login VARCHAR(20)"
-      db.query "CREATE TABLE IF NOT EXISTS users(#{columns})"
-    end
+    include Module.new {
+      extend MiniTest::Spec::DSL
 
-    after do
-      db.query "DROP TABLE IF EXISTS users"
-    end
+      before do
+        columns = "id int auto_increment PRIMARY KEY, login VARCHAR(20)"
+        db.query "CREATE TABLE IF NOT EXISTS users(#{columns})"
+      end
+
+      after do
+        db.query "DROP TABLE IF EXISTS users"
+      end
+    }
   end
 
   def self.uses_elasticsearch
     let(:client) { Syphon.client }
 
-    before { clear_indices }
-    after { clear_indices }
+    include Module.new {
+      extend MiniTest::Spec::DSL
+
+      before { clear_indices }
+      after { clear_indices }
+    }
   end
 
   def clear_indices
