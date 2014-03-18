@@ -26,13 +26,16 @@ module Syphon
     def add_to_document(document, row, schema = self.schema, index = 0)
       schema.fields.each do |name, field|
         if field.is_a?(Schema::NestedField)
-          nested_doc = {}
-          index = add_to_document(nested_doc, row, field.nested_schema, index)
-          document[field.name] = combine(document[field.name], nested_doc)
-          index
+          value = {}
+          index = add_to_document(value, row, field.nested_schema, index)
         else
-          document[field.name] = combine(document[field.name], row[index])
+          value = row[index]
           index += 1
+        end
+        if field.multi?
+          (document[field.name] ||= []) << value
+        else
+          document[field.name] = value
         end
       end
       index

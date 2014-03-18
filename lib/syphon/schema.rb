@@ -90,9 +90,14 @@ module Syphon
         @type = type
         @expression = expression
         @properties = options.merge(type: type)
+        @multi = options[:multi]
       end
 
       attr_reader :schema, :name, :type, :expression, :properties
+
+      def multi?
+        @multi
+      end
 
       def select(outer = nil)
         name = outer ? "#{outer}[#{self.name}]" : self.name

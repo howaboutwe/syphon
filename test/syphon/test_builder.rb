@@ -30,37 +30,43 @@ describe Syphon::Builder do
       ]
     end
 
-    it "merges content from rows with the same root id" do
+    it "replaces content from subsequent rows with the same root id for singular fields" do
       schema = Syphon::Schema.new do
         integer :id, 0
         string :name, 'x'
       end
       results = [[1, 'one'], [1, 'two']]
       Syphon::Builder.new(results, schema).to_a.
+        must_equal [{id: 1, name: 'two'}]
+    end
+
+    it "combines content from subsequent rows with the same root id for multi fields" do
+      schema = Syphon::Schema.new do
+        integer :id, 0
+        string :name, 'x', multi: true
+      end
+      results = [[1, 'one'], [1, 'two']]
+      Syphon::Builder.new(results, schema).to_a.
         must_equal [{id: 1, name: ['one', 'two']}]
     end
 
-    it "merges content with the same root id correctly when there are nested fields" do
+    it "replaces content from subsequent rows for singular nested fields" do
       schema = Syphon::Schema.new do
         integer :id, 0
         nested :nested1 do
-          integer :a, 'x'
-        end
-        nested :nested2 do
-          integer :a, 'x'
+          integer :id, 0
+          integer :name, 'x'
         end
       end
-      results = [[1, 10, 11], [2, 20, 21]]
-      Syphon::Builder.new(results, schema).to_a.must_equal [
-        {id: 1, nested1: {a: 10}, nested2: {a: 11}},
-        {id: 2, nested1: {a: 20}, nested2: {a: 21}},
-      ]
+      results = [[1, 2, 'a'], [1, 3, 'b']]
+      Syphon::Builder.new(results, schema).to_a.
+        must_equal [{id: 1, nested1: {id: 3, name: 'b'}}]
     end
 
-    it "supports arrays as nested fields" do
+    it "replaces content from subsequent rows for multi nested fields" do
       schema = Syphon::Schema.new do
         integer :id, 0
-        nested :nested1 do
+        nested :nested1, multi: true do
           integer :id, 0
           integer :name, 'x'
         end
