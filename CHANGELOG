@@ -1,4 +1,4 @@
-== LATEST
+== 0.1.0 2014-03-18
 
  * Clean up partially built index if building fails.
  * Use an ENV_syphon database configuration in database.yml before falling back
