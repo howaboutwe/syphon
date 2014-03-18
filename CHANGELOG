@@ -3,6 +3,11 @@
  * Clean up partially built index if building fails.
  * Use an ENV_syphon database configuration in database.yml before falling back
    to the standard one with Rails.
+ * Support ActiveSupport 4.
+ * Add :multi option for fields. This causes values to be indexed as arrays.
+   Arrays are no longer autodetected - fields which may be multivalued must be
+   declared as such, and will always be returned from ElasticSearch as an array
+   in ElasticSearch >= 1.0.
 
 == 0.0.2 2013-12-12
 
