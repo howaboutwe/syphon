@@ -117,7 +117,7 @@ describe Syphon::Index do
       TestIndex.index_settings = {number_of_shards: 23}
       TestIndex.build
       index = TestIndex.client.indices.get_alias(name: TestIndex.index_name).keys.first
-      num_shards = client.indices.get_settings[index]['settings']['index.number_of_shards']
+      num_shards = client.indices.get_settings[index]['settings']['index']['number_of_shards']
       num_shards.must_equal '23'
     end
 
