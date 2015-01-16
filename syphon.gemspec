@@ -14,7 +14,7 @@ Gem::Specification.new do |gem|
   gem.files         = `git ls-files`.split("\n")
   gem.test_files    = `git ls-files -- {test,spec,features}/*`.split("\n")
 
-  gem.add_dependency 'elasticsearch', '~> 0.4.0'
+  gem.add_dependency 'elasticsearch', '~> 1.0.0'
   gem.add_dependency 'activesupport', '< 5'
   gem.add_dependency 'mysql2', '~> 0.3.12'
 
